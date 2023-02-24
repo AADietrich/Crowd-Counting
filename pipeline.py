@@ -6,15 +6,15 @@ import os
 
 ## APPROACH 1 MCNN
 
-os.system("python3 put_zero_image.py")
+os.system("python put_zero_image.py")
 
-os.system("python3 test.py")
+os.system("python test.py")
 
-os.system("python3 put_zero_den.py")
+os.system("python put_zero_den.py")
 
-os.system("python3 find_people.py")
+os.system("python find_people.py")
 
-os.system("python3 position.py")
+os.system("python position.py")
 
 
 ## APPROACH 2 - RNN

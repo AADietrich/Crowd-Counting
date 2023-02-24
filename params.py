@@ -4,7 +4,7 @@ import sys
 this = sys.modules[__name__]
 
 # we can explicitly make assignments on it 
-this.input = 'C:\\Users\\Aaron\\Documents\\BCIT\\8125\\Gpselle_code\\Input\\'
+this.input = '..\\Input\\'
 
 this.original_xres = 1632
 this.original_yres = 3248
