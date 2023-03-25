@@ -92,6 +92,7 @@ class MCNN:
 
 
     def conv2d(self, x, w):
+        #Computes 2-D convolution on input x with filter w
         return tf.nn.conv2d(x, w, strides = [1, 1, 1, 1], padding = 'SAME')
 
     def max_pool_2x2(self, x):
@@ -100,8 +101,10 @@ class MCNN:
     def inf(self, x):
         #tf.reset_default_graph()
         # s net ###########################################################
+        #Create filter tensor of shape with HxW of 5x5, 1 input channel, 24 output channels
         w_conv1_1 = tf.get_variable('w_conv1_1', [5, 5, 1, 24])
         b_conv1_1 = tf.get_variable('b_conv1_1', [24])
+        #Compute activation function on sum of b_conv1_1 and convolution of x with filter w_conv1_1
         h_conv1_1 = tf.nn.relu(self.conv2d(x, w_conv1_1) + b_conv1_1)
 
         h_pool1_1 = self.max_pool_2x2(h_conv1_1)
@@ -234,12 +237,16 @@ class MCNN:
 
     def test(self):
         with tf.Session() as sess:
+            #Restore model
             saver = tf.train.Saver()
             saver.restore(sess, 'model' + self.dataset + '/model.ckpt')
             data = self.data_pre_test(self.dataset)
 
+            # ?? Error
             re=0
+            #Mean absolute error
             mae = 0
+            #Mean square error
             mse = 0
 
             for i in range(1, len(data) + 1):
@@ -278,15 +285,21 @@ class MCNN:
 
     def predict(self, path):
         with tf.Session() as sess:
+            #Restore session
             saver = tf.train.Saver()
             saver.restore(sess, 'model' + self.dataset + '/model.ckpt')
+            
+            #Load image array (_crop_y images)
             dirs = [f for f in glob.glob(path + '/*/')]
             images = []
             for x in dirs:
                 images.append([f for f in glob.glob(x + '/*_crop_y.png')])
             images.sort()
             images = [item for sublist in images for item in sublist]
+            
+            #Open output file
             file = open("output.csv", "w")
+            
             for img in images:
                 #img_path = '.\\data\\original\\shanghaitech\\part_'+ self.dataset +'\\test_data\\images\\'
 
@@ -294,18 +307,19 @@ class MCNN:
                 #name = 'teste_1.jpg'
                 #name = 'centraliens.jpg'
                 #img = cv2.imread(img_path + name, 0)
+                #Load image as array 
                 img_ = cv2.imread(img, 0)
-
-                xres, yres = img_.shape
-
+                #xres, yres = img_.shape
                 img_ = np.array(img_)
+                #Rescale pixel values to range [-1,1]
                 img_ = (img_ - 127.5) / 128
                 data.append([img_])
 
                 d = data[0]
                 x_in = d[0]
-
+                #Convert image array to 4D array array of shape (1,xres,yres,1)
                 x_in = np.reshape(d[0], (1, d[0].shape[0], d[0].shape[1], 1))
+                
                 y_p_den = sess.run(self.y_pre, feed_dict = {self.x: x_in})
 
                 a, b, c, d = y_p_den.shape
