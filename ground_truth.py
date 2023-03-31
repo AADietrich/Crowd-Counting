@@ -16,3 +16,7 @@ def findRadius(points):
     for d in distances:
         averages.append(np.average(np.asarray(d[1:])))
     return np.asarray(averages)
+
+def gaussian(points, xis):
+    for i in xis:
+        
