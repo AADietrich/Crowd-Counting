@@ -1,5 +1,7 @@
 import sys
 
+DATA_DIR = '../ShanghaiTech/part_A/'
+
 # this is a pointer to the module object instance itself.
 this = sys.modules[__name__]
 
