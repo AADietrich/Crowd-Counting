@@ -1,16 +1,20 @@
-import sys
-
+##################################################################################################
+#FILEPATHS
+##################################################################################################
 DATA_DIR = '../ShanghaiTech/part_A/'
 
-# this is a pointer to the module object instance itself.
-this = sys.modules[__name__]
+IMAGE_PATH = DATA_DIR + 'train_data/images/'
+TRUTH_PATH = DATA_DIR + 'train_data/ground-truth/'
+HEATM_PATH = DATA_DIR + 'train_data/heatmaps/'
 
-# we can explicitly make assignments on it 
-this.input = '..\\Input\\'
+##################################################################################################
+#PREPROCESSING CONSTANTS
+##################################################################################################
+PATCH_X = 224
+PATCH_Y = 224
 
-this.original_xres = 1632
-this.original_yres = 3248
+#Coef for Gaussian sample distance, determined experimentally in MCNN paper (Zhang, etal)
+GAUSSIAN_BETA = 0.3
 
-this.new_xres = 1114
-this.new_yres = 2217
-
+#K nearest neighbors to determine head radius
+K = 5
