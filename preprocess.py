@@ -42,8 +42,11 @@ class PreProcess():
             #Normalize gaussian heatmap to 8 bit greyscale
             hm = hm*(1.0/hm.max())
             hmImg = pil.fromarray(np.uint8(hm*255))
+            
             hmImg.save(self.heatm_path + images[i][len(self.image_path):-4] + "_hm.png")
             print("Processed " + str(i) + " images out of " + str(len(truths)), end='\r')  
+            
+        print("Heatmap generation of " + self.mode + " data complete.")
         return
 
     def crop_images(self):
@@ -54,6 +57,7 @@ class PreProcess():
                 name = f[len(self.image_path):-4]
                 count = crop.crop(self.image_path + name + '.jpg', self.heatm_path + name + '_hm.png', self.truth_path + 'GT_' + name + '.mat')
                 writer.writerow([name, count])
+        print("Cropping of " + self.mode + " data complete.")
         return
 
     def flip_images(self):
@@ -68,6 +72,7 @@ class PreProcess():
                 hm = pilio.mirror(hm)
                 img.save(f)
                 hm.save(self.heatm_path + name + '_hm_cropped.png')
+        print("Flipping of " + self.mode + " data complete.")
         return
     
     def downsample(self):
@@ -77,6 +82,7 @@ class PreProcess():
             img = cv2.pyrDown(img)
             img = cv2.pyrDown(img)
             cv2.imwrite(f[:-12] + '_cropdown.png', img)
+        print("Downsampling of " + self.mode + " data complete.")
         return        
     
     def load_data(self):
@@ -101,4 +107,5 @@ class PreProcess():
         npx = np.stack(xarr,axis=0)
         npy1 = np.stack(yarr1,axis=0)
         npy2 = np.stack(yarr2,axis=0)
+        print(self.mode + " data loaded")
         return npx, npy1, npy2
