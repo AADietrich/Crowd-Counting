@@ -31,18 +31,12 @@ class MRC:
         self.model.save("./model/")  
         return
     
-    def compileModel(self):
-        """
-        model.compile(
-            loss={"o1": "mse",
-                    "o2": "mse"},
-            loss_weights={"o1": 1.0,
-                        "o2": LH_WEIGHT},
-            optimizer=keras.optimizers.Adam(learning_rate=LEARN_RATE),
-            metrics=["accuracy"]       
-        """
+    def test(self, x_test, y1_test, y2_test):
+        self.model.evaluate(x_test, [y1_test, y2_test], verbose=2)
+        #print(self.model.metrics_names[0] + test_scores[0])
+        #print(self.model.metrics_names[1] + test_scores[1])
         return
-
+    
     def buildModel(self):
         #temp image dimensions - must be multiple of 32 (2 sampling ratio ^ 5 blocks) so that dimensions are correct for lateral connections
         w = p.X
