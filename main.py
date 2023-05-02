@@ -11,4 +11,6 @@ x_train, y_train = preprocess.get_patches()
 
 
 net = network.MRC()
+#net.buildModel()
+net.loadModel()
 net.train(x_train,y_train)

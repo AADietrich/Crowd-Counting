@@ -10,23 +10,25 @@ import params as p
 LEARN_RATE = 0.000003
 LH_WEIGHT = 0.0001
 BATCH_SIZE = 40
-EPOCHS = 10
+EPOCHS = 1
 
 PATCH_PATH = p.DATA_DIR + 'train_data/patches/'
 SAVE_PATH = './models'
 
 class MRC:
     def __init__(self):
-        self.model = self.buildModel()
-        self.model.compile(loss=keras.losses.MeanSquaredError(),
-                      optimizer=keras.optimizers.Adam(learning_rate=LEARN_RATE),
-                      metrics=["mse"]  )
         return
+    
     def train(self,x_train, y_train):
         history = self.model.fit(x_train,y_train,batch_size=BATCH_SIZE,epochs=EPOCHS,validation_split=0.2)
-                
+        self.model.save("./models/")        
         return
-    def compileModel():
+    
+    def loadModel(self):
+        self.model = keras.models.load_model("./models/")
+        return
+    
+    def compileModel(self):
         """
         model.compile(
             loss={"o1": "mse",
@@ -129,8 +131,9 @@ class MRC:
         x = layers.Conv2D(128,3,activation="relu",padding="same")(x)
         o2 = layers.Conv2D(1,1,activation=None,padding="same")(x)
 
-        #model = keras.Model(inputs=inputs, outputs=[o1,o2], name="mrcnet_model")
-        model = keras.Model(inputs=inputs, outputs=o2, name="mrcnet_model")
+        #self.model = keras.Model(inputs=inputs, outputs=[o1,o2], name="mrcnet_model")
+        self.model = keras.Model(inputs=inputs, outputs=o2, name="mrc_model")
+        
         """
         print(x.shape)
         print(s1.shape)
@@ -138,11 +141,15 @@ class MRC:
         print(s3.shape)
         print(s4.shape)
         """
-        print(model.summary())
         
         #Total params should be 20.3M according to Bahmanyar et al
+        print(self.model.summary())
         #keras.utils.plot_model(model,"mrc_graph.png")
-        return model
+        
+        self.model.compile(loss=keras.losses.MeanSquaredError(),
+            optimizer=keras.optimizers.Adam(learning_rate=LEARN_RATE),
+            metrics=["mse"]  )
+        return
     
     #Simplified model for testing
     def buildModel_simple(self):
@@ -156,9 +163,12 @@ class MRC:
         x = layers.Conv2D(64,3,activation="relu",padding="same")(x)
         o2 = layers.Conv2D(1,1,activation="relu",padding="same")(x)
         
-        model = keras.Model(inputs=inputs, outputs=o2, name="simple_model")
-        print(model.summary())
-        return model
+        self.model = keras.Model(inputs=inputs, outputs=o2, name="simple_model")
+        print(self.model.summary())
+        self.model.compile(loss=keras.losses.MeanSquaredError(),
+            optimizer=keras.optimizers.Adam(learning_rate=LEARN_RATE),
+            metrics=["mse"]  )
+        return
         
         
         
