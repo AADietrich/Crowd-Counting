@@ -5,6 +5,7 @@ import PIL.Image as pil
 import PIL.ImageOps as pilio
 import random
 import csv
+import cv2
 
 import heatmap
 import crop
@@ -12,6 +13,7 @@ import params as p
 
 class PreProcess():
     def __init__(self, mode):
+        self.mode = mode
         self.image_path = p.DATA_DIR + mode + '_data/images/'
         self.truth_path = p.DATA_DIR + mode + '_data/ground-truth/'
         self.heatm_path = p.DATA_DIR + mode + '_data/heatmaps/'        
@@ -45,7 +47,8 @@ class PreProcess():
         return
 
     def crop_images(self):
-        with open('.//counts.csv', 'w') as f:
+        #Write counts to csv to use later
+        with open('.//counts_' + self.mode + '.csv', 'w') as f:
             writer = csv.writer(f)
             for f in glob.glob(self.image_path + '*.jpg'):
                 name = f[len(self.image_path):-4]
@@ -66,20 +69,36 @@ class PreProcess():
                 img.save(f)
                 hm.save(self.heatm_path + name + '_hm_cropped.png')
         return
-            
+    
+    def downsample(self):
+        for f in glob.glob(self.heatm_path + '*_cropped.png'):
+            img = cv2.imread(f)
+            #Use 2 pyramids to downsample to 1/4 size
+            img = cv2.pyrDown(img)
+            img = cv2.pyrDown(img)
+            cv2.imwrite(f[:-12] + '_cropdown.png', img)
+        return        
+    
     def load_data(self):
         xarr = []
-        yarr = []
+        yarr1 = []
+        yarr2 = []
         for f in glob.glob(self.image_path + '*_cropped.png'):
             x = np.asarray(pil.open(f))
             #Rescale to -1,1
             x = (x - 127.5)/128
             xarr.append(x)
-        for f in glob.glob(self.heatm_path + '*_cropped.png'):
-            y = np.asarray(pil.open(f))
+        for f in glob.glob(self.heatm_path + '*_cropdown.png'):
+            y1 = np.asarray(pil.open(f))
             #Rescale to -1,1
-            y = (y - 127.5)/128
-            yarr.append(x)
+            y1 = (y1 - 127.5)/128
+            yarr1.append(y1)
+        for f in glob.glob(self.heatm_path + '*_cropped.png'):
+            y2 = np.asarray(pil.open(f))
+            #Rescale to -1,1
+            y2 = (y2 - 127.5)/128
+            yarr2.append(y2)
         npx = np.stack(xarr,axis=0)
-        npy = np.stack(yarr,axis=0)
-        return npx, npy
+        npy1 = np.stack(yarr1,axis=0)
+        npy2 = np.stack(yarr2,axis=0)
+        return npx, npy1, npy2
