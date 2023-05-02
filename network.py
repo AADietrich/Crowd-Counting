@@ -10,7 +10,7 @@ import params as p
 LEARN_RATE = 0.000003
 LH_WEIGHT = 0.0001
 BATCH_SIZE = 40
-EPOCHS = 1
+EPOCHS = 10
 
 PATCH_PATH = p.DATA_DIR + 'train_data/patches/'
 SAVE_PATH = './models'
@@ -19,13 +19,16 @@ class MRC:
     def __init__(self):
         return
     
-    def train(self,x_train, y_train):
-        history = self.model.fit(x_train,y_train,batch_size=BATCH_SIZE,epochs=EPOCHS,validation_split=0.2)
-        self.model.save("./models/")        
+    def train(self,x_train, y1_train, y2_train):
+        history = self.model.fit(x_train,[y1_train,y2_train],batch_size=BATCH_SIZE,epochs=EPOCHS,validation_split=0.2)    
         return
     
     def loadModel(self):
-        self.model = keras.models.load_model("./models/")
+        self.model = keras.models.load_model("./model/")
+        return
+    
+    def saveModel(self):
+        self.model.save("./model/")  
         return
     
     def compileModel(self):
@@ -39,7 +42,7 @@ class MRC:
             metrics=["accuracy"]       
         """
         return
-    
+
     def buildModel(self):
         #temp image dimensions - must be multiple of 32 (2 sampling ratio ^ 5 blocks) so that dimensions are correct for lateral connections
         w = p.X
@@ -116,8 +119,8 @@ class MRC:
         x = layers.Conv2D(256,3,activation="relu",padding="same")(x)
         x = layers.add((x,s2))
         x = layers.Conv2D(256,3,activation="relu",padding="same")(x)
-        o1 = layers.Conv2D(1,1,activation=None,padding="same")(x)
-        x = layers.Conv2D(128,3,activation="relu",padding="same")(x)
+        o1 = layers.Conv2D(1,1,activation=None,padding="same",name="o1")(x)
+        x = layers.Conv2D(128,3,activation="relu",padding="same")(o1)
 
         #Fourth block
         x = layers.UpSampling2D(size=(2,2),interpolation="bilinear")(x)
@@ -129,10 +132,10 @@ class MRC:
         x = layers.UpSampling2D(size=(2,2),interpolation="bilinear")(x)
         x = layers.Conv2D(128,3,activation="relu",padding="same")(x)
         x = layers.Conv2D(128,3,activation="relu",padding="same")(x)
-        o2 = layers.Conv2D(1,1,activation=None,padding="same")(x)
+        o2 = layers.Conv2D(1,1,activation=None,padding="same",name="o2")(x)
 
         #self.model = keras.Model(inputs=inputs, outputs=[o1,o2], name="mrcnet_model")
-        self.model = keras.Model(inputs=inputs, outputs=o2, name="mrc_model")
+        self.model = keras.Model(inputs=inputs, outputs=[o1,o2], name="mrc_model")
         
         """
         print(x.shape)
@@ -145,10 +148,18 @@ class MRC:
         #Total params should be 20.3M according to Bahmanyar et al
         print(self.model.summary())
         #keras.utils.plot_model(model,"mrc_graph.png")
-        
+        '''
         self.model.compile(loss=keras.losses.MeanSquaredError(),
             optimizer=keras.optimizers.Adam(learning_rate=LEARN_RATE),
             metrics=["mse"]  )
+        '''
+        self.model.compile(
+            loss={"o1": "mse",
+                    "o2": "mse"},
+            loss_weights={"o1": 1.0,
+                        "o2": LH_WEIGHT},
+            optimizer=keras.optimizers.Adam(learning_rate=LEARN_RATE),
+            metrics=["mse"] )
         return
     
     #Simplified model for testing
