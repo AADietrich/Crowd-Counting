@@ -6,15 +6,20 @@ main.py is the entry-point for the program, un-comment function calls as necessa
 params.py contains program-level configuration parameters
   Set the correct location of the input data directory here - file structure assumed to be that of Shanghaitech dataset
 
+
+
 network.py contains all model code
+
 preprocess.py contains most preprocessing code with helper methods in heatmap.py and crop.py
+
 loading_shanghaitech notebook was used for iterative testing
 
 All code in gpselle folder is from the original branch and is currently unused by the implementation
 
 
 
-Crowd-counting project created by Aaron Dietrich as part of the BCIT GIS Program
+Crowd-counting project created by Aaron Dietrich as part of the BCIT GIS Program.
+
 Project sponsored by Planetary Remote Sensing Inc. prscorp.ca
 
 Shanghaitech dataset used for training and testing. Adaptive kernel heatmap generation implemented as described in (1)
